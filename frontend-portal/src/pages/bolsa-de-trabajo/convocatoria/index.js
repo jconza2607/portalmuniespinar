@@ -10,7 +10,6 @@ import { fetchConvocatorias } from "@/services/convocatoria";
 
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
-// Etiquetas por tipo de adjunto
 const TIPO_LABELS = {
   base: "Bases",
   cronograma: "Cronograma",
@@ -20,7 +19,6 @@ const TIPO_LABELS = {
   otro: "Resultado",
 };
 
-// Hook para cuenta regresiva
 function useCountdown(fechaCierre) {
   const fechaConHora = `${fechaCierre}T23:59:59-05:00`; // Perú UTC-5
   const [timeLeft, setTimeLeft] = useState(() => calcTimeLeft(new Date(fechaConHora)));
@@ -35,7 +33,6 @@ function useCountdown(fechaCierre) {
   return timeLeft;
 }
 
-// Calcula la diferencia entre ahora y la fecha objetivo
 function calcTimeLeft(targetDate) {
   const total = new Date(targetDate) - new Date();
   if (total <= 0) return null;
@@ -48,13 +45,17 @@ function calcTimeLeft(targetDate) {
   return { days, hours, minutes, seconds };
 }
 
-/* ---------- PÁGINA ---------- */
 export default function Convocatoria({ convocatorias }) {
   const [search, setSearch] = useState("");
   const [openCollapse, setOpenCollapse] = useState(null);
 
   const visibles = convocatorias.filter((c) =>
     c.titulo.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Corrección: generar los countdowns afuera del map
+  const countdowns = visibles.map((c) =>
+    c.fecha_cierre ? useCountdown(c.fecha_cierre) : null
   );
 
   const handleToggle = (collapseId) => {
@@ -67,20 +68,20 @@ export default function Convocatoria({ convocatorias }) {
 
       <section className="py-5">
         <div className="container">
-          <h2 className="mb-4">Convocatorias vigentes</h2>          
+          <h2 className="mb-4">Convocatorias vigentes</h2>
 
           {visibles.length === 0 ? (
             <p className="text-muted">No se encontraron resultados.</p>
           ) : (
             <div className="row g-4">
-              {visibles.map((c) => {
+              {visibles.map((c, index) => {
                 const agrupados = c.adjuntos.reduce((acc, a) => {
                   acc[a.tipo] = acc[a.tipo] || [];
                   acc[a.tipo].push(a);
                   return acc;
                 }, {});
 
-                const countdown = c.fecha_cierre ? useCountdown(c.fecha_cierre) : null;
+                const countdown = countdowns[index];
 
                 return (
                   <div key={c.id} className="col-md-6">
@@ -161,7 +162,6 @@ export default function Convocatoria({ convocatorias }) {
   );
 }
 
-/* ---------- CARGA SSR ---------- */
 export async function getStaticProps() {
   try {
     const convocatorias = await fetchConvocatorias();
@@ -172,7 +172,6 @@ export async function getStaticProps() {
   }
 }
 
-/* ---------- LAYOUT ---------- */
 Convocatoria.getLayout = function (page) {
   return (
     <>
