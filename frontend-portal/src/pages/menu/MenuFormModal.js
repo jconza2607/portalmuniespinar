@@ -1,8 +1,8 @@
 'use client';
 
 export default function MenuFormModal({
-  form,
-  parentOptions,
+  form = {},
+  parentOptions = [],
   onChange,
   onSubmit,
   onClose,
@@ -10,8 +10,8 @@ export default function MenuFormModal({
   resetForm,
 }) {
   const handleClose = () => {
-    onClose();
-    resetForm();
+    onClose?.();
+    resetForm?.();
   };
 
   return (
@@ -25,7 +25,7 @@ export default function MenuFormModal({
             <input
               type="text"
               name="label"
-              value={form.label}
+              value={form.label ?? ''}
               onChange={onChange}
               required
             />
@@ -36,7 +36,7 @@ export default function MenuFormModal({
             <input
               type="text"
               name="href"
-              value={form.href}
+              value={form.href ?? ''}
               onChange={onChange}
             />
           </label>
@@ -46,7 +46,7 @@ export default function MenuFormModal({
             <input
               type="text"
               name="icon"
-              value={form.icon}
+              value={form.icon ?? ''}
               onChange={onChange}
             />
           </label>
@@ -59,11 +59,12 @@ export default function MenuFormModal({
               onChange={onChange}
             >
               <option value="">-- Sin padre --</option>
-              {parentOptions.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
+              {Array.isArray(parentOptions) &&
+                parentOptions.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                  </option>
+                ))}
             </select>
           </label>
 
@@ -71,7 +72,7 @@ export default function MenuFormModal({
             <input
               type="checkbox"
               name="enabled"
-              checked={form.enabled}
+              checked={form.enabled ?? false}
               onChange={onChange}
             />
             Habilitado

@@ -4,171 +4,176 @@ import { useEffect, useState } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import ProtectedLayout from '@/layouts/ProtectedLayout';
 import { withAuth } from '@/utils/authGuard';
+
 import {
   getTopbars,
   createTopbar,
   updateTopbar,
   deleteTopbar,
 } from '@/services/topbar';
+
 import {
   getTopbarLogos,
   createTopbarLogo,
   updateTopbarLogo,
   deleteTopbarLogo,
 } from '@/services/topbarLogo';
-import TopbarFormModal from './TopbarFormModal';
-import TopbarLogoFormModal from './TopbarLogoFormModal'; // 👈 Crea este también
 
-export const getServerSideProps = withAuth(async (_ctx, user) => {
-  return { props: { user } };
-});
+// ⬇️  importa desde components, NO desde ./TopbarFormModal
+import TopbarFormModal from '@/components/admin/topbar/TopbarFormModal';
+import TopbarLogoFormModal from '@/components/admin/topbar/TopbarLogoFormModal';
+
+export const getServerSideProps = withAuth(async (_ctx, user) => ({
+  props: { user },
+}));
 
 export default function AdminTopbar({ user }) {
-  // Topbar (correo)
+  /* ---------- correos ---------- */
   const [topbars, setTopbars] = useState([]);
-  const [form, setForm] = useState({ email: '', enabled: true });
+  const [form, setForm] = useState({ id: null, email: '', enabled: true });
   const [isEdit, setIsEdit] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  // TopbarLogo (logo)
+  /* ---------- logos ---------- */
   const [logos, setLogos] = useState([]);
-  const [logoForm, setLogoForm] = useState({ file: null, enabled: true });
+  const [logoForm, setLogoForm] = useState({ id: null, file: null, enabled: true });
   const [isEditLogo, setIsEditLogo] = useState(false);
   const [showLogoModal, setShowLogoModal] = useState(false);
 
+  /* ---------- cargar ---------- */
   const fetchData = async () => {
     setTopbars(await getTopbars());
     setLogos(await getTopbarLogos());
   };
+  useEffect(() => { fetchData(); }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // ---------------- TOPBAR ----------------
+  /* ---------- handlers correo ---------- */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    setForm((p) => ({ ...p, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEdit) {
-      await updateTopbar(form.id, form);
-    } else {
-      await createTopbar(form);
-    }
-    fetchData();
-    closeModal();
+    isEdit ? await updateTopbar(form.id, form) : await createTopbar(form);
+    closeModal(); fetchData();
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setIsEdit(false);
-    setForm({ email: '', enabled: true });
+  const openEdit =  (t) => { setIsEdit(true);  setForm(t);        setShowModal(true); };
+  const openNew  = () => { setIsEdit(false); setForm({ email:'', enabled:true }); setShowModal(true); };
+  const closeModal = () => setShowModal(false);
+
+  const remove = async (id) => {
+    if (confirm('¿Eliminar?')) { await deleteTopbar(id); fetchData(); }
   };
 
-  const handleEdit = (topbar) => {
-    setForm(topbar);
-    setIsEdit(true);
-    setShowModal(true);
-  };
-
-  const handleDelete = async (id) => {
-    if (confirm('¿Estás seguro de eliminar este correo?')) {
-      await deleteTopbar(id);
-      fetchData();
-    }
-  };
-
-  // ---------------- LOGO ----------------
+  /* ---------- handlers logo ---------- */
   const handleLogoChange = (e) => {
-    const { name, type, checked, files } = e.target;
-    if (type === 'file') {
-      setLogoForm((prev) => ({ ...prev, file: files[0] }));
-    } else {
-      setLogoForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : e.target.value }));
-    }
+    const { type, name, checked, files } = e.target;
+    setLogoForm((p) => ({
+      ...p,
+      [name]: type === 'file' ? files[0] : type === 'checkbox' ? checked : e.target.value,
+    }));
   };
 
   const handleLogoSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('enabled', logoForm.enabled ? '1' : '0');
-    if (logoForm.file) formData.append('logo', logoForm.file);
+    const data = new FormData();
+    data.append('enabled', logoForm.enabled ? '1' : '0');
+    if (logoForm.file) data.append('logo', logoForm.file);
 
-    if (isEditLogo) {
-      await updateTopbarLogo(logoForm.id, formData);
-    } else {
-      await createTopbarLogo(formData);
-    }
-    fetchData();
-    closeLogoModal();
+    isEditLogo ? await updateTopbarLogo(logoForm.id, data) : await createTopbarLogo(data);
+    closeLogoModal(); fetchData();
   };
 
-  const handleLogoEdit = (logo) => {
-    setLogoForm({ id: logo.id, file: null, enabled: logo.enabled });
+  const openLogoEdit = (l) => {
     setIsEditLogo(true);
+    setLogoForm({ id: l.id, file: null, enabled: l.enabled });
     setShowLogoModal(true);
   };
+  const openLogoNew = () => { setIsEditLogo(false); setLogoForm({ file:null, enabled:true }); setShowLogoModal(true); };
+  const closeLogoModal = () => setShowLogoModal(false);
 
-  const handleLogoDelete = async (id) => {
-    if (confirm('¿Estás seguro de eliminar este logo?')) {
-      await deleteTopbarLogo(id);
-      fetchData();
-    }
+  const removeLogo = async (id) => {
+    if (confirm('¿Eliminar logo?')) { await deleteTopbarLogo(id); fetchData(); }
   };
 
-  const closeLogoModal = () => {
-    setShowLogoModal(false);
-    setIsEditLogo(false);
-    setLogoForm({ file: null, enabled: true });
-  };
-
-  // ---------------- RENDER ----------------
+  /* ---------- UI ---------- */
   return (
     <ProtectedRoute>
       <ProtectedLayout user={user}>
+
+        {/* correos */}
         <div className="dashboard-card">
-          <div className="dashboard-card-header">
+          <div className="dashboard-card-header d-flex justify-content-between">
             <h2>Correos del Topbar</h2>
-            <button onClick={() => setShowModal(true)}>➕ Nuevo correo</button>
+            <button onClick={openNew}>+ Nuevo correo</button>
           </div>
-          <div className="dashboard-card-body">
-            <table className="table mt-3">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Correo</th>
-                  <th>Habilitado</th>
-                  <th>Acciones</th>
+
+          <table className="table mt-3">
+            <thead><tr><th>ID</th><th>Correo</th><th>Activo</th><th /></tr></thead>
+            <tbody>
+              {topbars.map((t) => (
+                <tr key={t.id}>
+                  <td>{t.id}</td>
+                  <td>{t.email}</td>
+                  <td>{t.enabled ? '✅' : '❌'}</td>
+                  <td>
+                    <button onClick={() => openEdit(t)}>✏️</button>{' '}
+                    <button onClick={() => remove(t.id)}>🗑️</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {topbars.map((t) => (
-                  <tr key={t.id}>
-                    <td>{t.id}</td>
-                    <td>{t.email}</td>
-                    <td>{t.enabled ? '✅' : '❌'}</td>
-                    <td>
-                      <button onClick={() => handleEdit(t)}>✏️</button>{' '}
-                      <button onClick={() => handleDelete(t.id)}>🗑️</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {showModal && (
-            <TopbarFormModal
-              form={form}
-              onChange={handleChange}
-              onSubmit={handleSubmit}
-              onClose={closeModal}
-              isEdit={isEdit}
-            />
-          )}        
+              ))}
+            </tbody>
+          </table>
         </div>
+
+        {/* logos */}
+        <div className="dashboard-card mt-5">
+          <div className="dashboard-card-header d-flex justify-content-between">
+            <h2>Logos del Topbar</h2>
+            <button onClick={openLogoNew}>+ Nuevo logo</button>
+          </div>
+
+          <table className="table mt-3">
+            <thead><tr><th>ID</th><th>Preview</th><th>Activo</th><th /></tr></thead>
+            <tbody>
+              {logos.map((l) => (
+                <tr key={l.id}>
+                  <td>{l.id}</td>
+                  <td><img src={l.url} width={80} alt="" /></td>
+                  <td>{l.enabled ? '✅' : '❌'}</td>
+                  <td>
+                    <button onClick={() => openLogoEdit(l)}>✏️</button>{' '}
+                    <button onClick={() => removeLogo(l.id)}>🗑️</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* modales */}
+        {showModal     && (
+          <TopbarFormModal
+            form={form}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            onClose={closeModal}
+            isEdit={isEdit}
+          />
+        )}
+
+        {showLogoModal && (
+          <TopbarLogoFormModal
+            form={logoForm}
+            onChange={handleLogoChange}
+            onSubmit={handleLogoSubmit}
+            onClose={closeLogoModal}
+            isEdit={isEditLogo}
+          />
+        )}
+
       </ProtectedLayout>
     </ProtectedRoute>
   );

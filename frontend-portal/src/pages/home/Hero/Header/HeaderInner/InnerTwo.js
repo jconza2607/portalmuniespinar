@@ -1,6 +1,6 @@
 "use client";
 
-import useStickyHeader from "./useStickyHeader";
+import useStickyHeader from "../../../../../hooks/useStickyHeader";
 
 import Navbar from "../Navbar";
 import SearchBar from "../SearchBar";

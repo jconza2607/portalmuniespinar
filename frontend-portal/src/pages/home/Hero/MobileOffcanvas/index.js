@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Offcanvas } from "react-bootstrap";
 
-import Logo from "../../../public/img/logo.svg";
+/* import Logo from "../../../public/img/logo.svg"; */
 
 export default function MobileOffcanvas() {
   const pathname = usePathname();
@@ -44,7 +44,7 @@ export default function MobileOffcanvas() {
             <div className="modal-header offcanvas-header">
               <div className="offcanvas-logo">
                 <Link href="/">
-                  <Image src={Logo} alt="#" width={134} height={50} />
+                  {/* <Image src={Logo} alt="#" width={134} height={50} /> */}
                 </Link>
               </div>
               <button type="button" className="btn-close" onClick={handleClose}>

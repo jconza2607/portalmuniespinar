@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import useStickyHeader from "./useStickyHeader";
+import useStickyHeader from "../../../../../hooks/useStickyHeader";
 
 import Logo from "../Logo";
 import Navbar from "../Navbar";
