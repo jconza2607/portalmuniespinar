@@ -106,32 +106,27 @@ class DirectorioController extends Controller
                 'correo'     => 'nullable|email|max:255',
                 'area'       => 'nullable|string|max:255',
                 'orden'      => 'nullable|integer',
-                'foto'       => 'nullable|image|max:5120', // acepta imágenes hasta 5 MB
-                'activo'     => 'nullable|in:0,1,true,false',
-                'autoridad'  => 'nullable|in:0,1,true,false',
+                'foto'       => 'nullable|image|max:2048',
             ]);
 
-            $data['activo']    = filter_var($request->input('activo'), FILTER_VALIDATE_BOOLEAN);
-            $data['autoridad'] = filter_var($request->input('autoridad'), FILTER_VALIDATE_BOOLEAN);
+            // ✅ Aseguramos flags booleanos correctamente
+            $data['activo']    = $request->boolean('activo');
+            $data['autoridad'] = $request->boolean('autoridad');
 
-            // ⬇️ Reemplazar foto si se envía una nueva
             if ($request->hasFile('foto')) {
-                $file = $request->file('foto');
-
-                if ($file && $file->isValid()) {
-                    // Borra la existente
-                    if ($directorio->foto && Storage::disk('public')->exists($directorio->foto)) {
-                        Storage::disk('public')->delete($directorio->foto);
-                    }
-
-                    $filename = Str::uuid() . '.' . $file->extension();
-                    $data['foto'] = $file->storeAs('directorios', $filename, 'public');
+                if ($directorio->foto && Storage::disk('public')->exists($directorio->foto)) {
+                    Storage::disk('public')->delete($directorio->foto);
                 }
+
+                $file = $request->file('foto');
+                $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $data['foto'] = $file->storeAs('directorios', $filename, 'public');
             }
 
             $directorio->update($data);
 
             return response()->json($directorio, 200);
+
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Directorio no encontrado'], 404);
         } catch (Exception $e) {
@@ -141,7 +136,7 @@ class DirectorioController extends Controller
             ]);
 
             return response()->json([
-                'error'   => 'Error al actualizar',
+                'error' => 'Error al actualizar',
                 'message' => $e->getMessage(),
             ], 500);
         }
