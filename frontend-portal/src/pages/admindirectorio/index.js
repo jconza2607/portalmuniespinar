@@ -77,9 +77,9 @@ export default function DirectorioPage({ user }) {
     const data = new FormData();
     data.append("nombre", formData.nombre);
     data.append("cargo", formData.cargo);
-    data.append("telefono", formData.telefono);
-    data.append("correo", formData.correo);
-    data.append("area", formData.area);
+    data.append("telefono", formData.telefono || ''); // Enviar string vacío si es null
+    data.append("correo", formData.correo || '');
+    data.append("area", formData.area || '');
     data.append("orden", formData.orden || 0);
     data.append("activo", formData.activo ? "1" : "0");
     data.append("autoridad", formData.autoridad ? "1" : "0");
@@ -90,6 +90,9 @@ export default function DirectorioPage({ user }) {
 
     try {
       if (isEditMode) {
+        // --- CORRECCIÓN CLAVE ---
+        // Añadimos el campo _method al FormData para que Laravel sepa que es una petición PUT.
+        data.append("_method", "PUT");
         await updateDirectorio(formData.id, data);
       } else {
         await createDirectorio(data);
@@ -98,6 +101,7 @@ export default function DirectorioPage({ user }) {
       await loadData(pagination.current_page);
     } catch (err) {
       console.error("Error guardando directorio", err);
+      // Opcional: Mostrar un mensaje de error al usuario
     }
   };
 
@@ -106,22 +110,24 @@ export default function DirectorioPage({ user }) {
       id: item.id,
       nombre: item.nombre,
       cargo: item.cargo,
-      telefono: item.telefono,
-      correo: item.correo,
-      area: item.area,
-      orden: item.orden,
-      activo: item.activo,
-      autoridad: item.autoridad,
-      foto: null,
+      telefono: item.telefono || '',
+      correo: item.correo || '',
+      area: item.area || '',
+      orden: item.orden || '',
+      activo: !!item.activo, // Asegurar que sea booleano
+      autoridad: !!item.autoridad,
+      foto: null, // No pre-cargamos el archivo, el usuario debe seleccionar uno nuevo si quiere cambiarlo
     });
     setEditMode(true);
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
-    if (confirm("¿Estás seguro de eliminar este directorio?")) {
+    // Reemplazar confirm por un modal personalizado en producción
+    if (window.confirm("¿Estás seguro de eliminar este directorio?")) {
       await deleteDirectorio(id);
-      await loadData(pagination.current_page);
+      // Recargar la página actual o la anterior si la actual queda vacía
+      loadData(pagination.current_page);
     }
   };
 

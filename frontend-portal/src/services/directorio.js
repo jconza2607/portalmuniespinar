@@ -40,7 +40,7 @@ export async function createDirectorio(data) {
 // 🔒 Actualizar miembro del directorio
 export async function updateDirectorio(id, data) {
   await getCsrfToken();
-  const response = await api.post(`/api/directorios/${id}?_method=PUT`, data, {
+  const response = await api.post(`/api/directorios/${id}`, data, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return response.data;
