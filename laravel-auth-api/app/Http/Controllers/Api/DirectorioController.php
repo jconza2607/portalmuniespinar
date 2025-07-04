@@ -99,24 +99,31 @@ class DirectorioController extends Controller
         try {
             $directorio = Directorio::findOrFail($id);
 
+            // CORRECCIÓN CLAVE: La validación ahora usa 'boolean' que es más robusto.
             $data = $request->validate([
-                'nombre'     => 'required|string|max:255',
-                'cargo'      => 'required|string|max:255',
+                'nombre'     => 'sometimes|required|string|max:255',
+                'cargo'      => 'sometimes|required|string|max:255',
                 'telefono'   => 'nullable|string|max:20',
                 'correo'     => 'nullable|email|max:255',
                 'area'       => 'nullable|string|max:255',
                 'orden'      => 'nullable|integer',
                 'foto'       => 'nullable|image|max:2048',
-                'activo'     => 'nullable|in:0,1,true,false,on,off',
-                'autoridad'  => 'nullable|in:0,1,true,false,on,off',
+                'activo'     => 'nullable|boolean',
+                'autoridad'  => 'nullable|boolean',
             ]);
 
-            $data['activo'] = filter_var($request->input('activo'), FILTER_VALIDATE_BOOLEAN);
-            $data['autoridad'] = filter_var($request->input('autoridad'), FILTER_VALIDATE_BOOLEAN);
+            // CORRECCIÓN CLAVE: Se procesan los booleanos con el método de Laravel.
+            // Esto evita el error si los campos no vienen en el request (ej. checkbox sin marcar).
+            if ($request->has('activo')) {
+                $data['activo'] = $request->boolean('activo');
+            }
+            if ($request->has('autoridad')) {
+                $data['autoridad'] = $request->boolean('autoridad');
+            }
 
             // ⬇️ Reemplazar foto si se envía una nueva
             if ($request->hasFile('foto')) {
-                // Borra la existente
+                // Borra la existente para no dejar basura en el servidor
                 if ($directorio->foto && Storage::disk('public')->exists($directorio->foto)) {
                     Storage::disk('public')->delete($directorio->foto);
                 }
@@ -129,18 +136,23 @@ class DirectorioController extends Controller
 
             $directorio->update($data);
 
-            return response()->json($directorio, 200);
+            // Devolver el modelo actualizado
+            return response()->json($directorio->fresh(), 200);
+
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Directorio no encontrado'], 404);
+            return response()->json(['message' => 'Directorio no encontrado'], 404);
+        } catch (ValidationException $e) {
+            return response()->json(['message' => 'Datos inválidos', 'errors' => $e->errors()], 422);
         } catch (Exception $e) {
             Log::error('Error al actualizar directorio', [
+                'id'    => $id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(), // El trace es muy útil para depurar
             ]);
 
             return response()->json([
-                'error'   => 'Error al actualizar',
-                'message' => $e->getMessage(),
+                'message' => 'Error al actualizar el registro',
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
