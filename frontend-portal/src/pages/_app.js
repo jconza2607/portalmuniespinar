@@ -66,7 +66,7 @@ export default function App({ Component, pageProps }) {
       <Head>
         <title>Municipalidad Provincial de Espinar</title>
         <meta name="description" content="Municipalidad Provincial de Espinar" />
-        <link rel="icon" href="/img/favicon.ico" />
+        <link rel="icon" href="/img/Escudo_Espinar.ico" />
       </Head>
 
       <AuthProvider>

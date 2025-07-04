@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Offcanvas } from "react-bootstrap";
 
-import Logo from "../../../public/img/logo.svg";
+import Logo from "../../../public/img/logo5.png";
 
 export default function MobileOffcanvas() {
   const pathname = usePathname();
@@ -59,32 +59,10 @@ export default function MobileOffcanvas() {
                     <Link
                       className="menu-arrow"
                       onClick={() => toggleSubMenu(1)}
-                      href="#"
+                      href="/"
                     >
-                      Home <i className="icofont-rounded-down"></i>
-                    </Link>
-                    <ul
-                      className={`sub-menu ${openSubMenu === 1 ? "open" : ""}`}
-                    >
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${isActive("/") ? "active" : ""}`}
-                          href="/"
-                        >
-                          Home Page 1
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${isActive("/home-2") ? "active" : ""}`}
-                          href="/home-2"
-                        >
-                          Home Page 2
-                        </Link>
-                      </li>
-                    </ul>
+                      Home
+                    </Link>                    
                   </li>
                   <li>
                     <Link
@@ -92,7 +70,7 @@ export default function MobileOffcanvas() {
                       onClick={() => toggleSubMenu(2)}
                       href="#"
                     >
-                      Doctors <i className="icofont-rounded-down"></i>
+                      Municipalidad <i className="icofont-rounded-down"></i>
                     </Link>
                     <ul
                       className={`sub-menu ${openSubMenu === 2 ? "open" : ""}`}
@@ -100,21 +78,54 @@ export default function MobileOffcanvas() {
                       <li>
                         <Link
                           onClick={handleClose}
-                          className={` ${isActive("/doctors") ? "active" : ""}`}
-                          href="/doctors"
+                          className={` ${isActive("/municipalidad/visionmision") ? "active" : ""}`}
+                          href="/municipalidad/visionmision"
                         >
-                          Doctor
+                          Visión y Misión
                         </Link>
                       </li>
                       <li>
                         <Link
                           onClick={handleClose}
                           className={` ${
-                            isActive("/doctor-details") ? "active" : ""
+                            isActive("/municipalidad/directorio") ? "active" : ""
                           }`}
-                          href="/doctor-details"
+                          href="/municipalidad/directorio"
                         >
-                          Doctor Details
+                          Directorio
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          onClick={handleClose}
+                          className={` ${
+                            isActive("/municipalidad/organigrama") ? "active" : ""
+                          }`}
+                          href="/municipalidad/organigrama"
+                        >
+                          Organigrama
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          onClick={handleClose}
+                          className={` ${
+                            isActive("/municipalidad/doc-gestion") ? "active" : ""
+                          }`}
+                          href="/municipalidad/doc-gestion"
+                        >
+                          Documentos de Gestión
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          onClick={handleClose}
+                          className={` ${
+                            isActive("/municipalidad/normas-emitidas") ? "active" : ""
+                          }`}
+                          href="/municipalidad/normas-emitidas"
+                        >
+                          Normas Emitidas
                         </Link>
                       </li>
                     </ul>
@@ -125,7 +136,7 @@ export default function MobileOffcanvas() {
                       onClick={() => toggleSubMenu(3)}
                       href="#"
                     >
-                      Services <i className="icofont-rounded-down"></i>
+                      Servicios <i className="icofont-rounded-down"></i>
                     </Link>
                     <ul
                       className={`sub-menu ${openSubMenu === 3 ? "open" : ""}`}
@@ -158,7 +169,7 @@ export default function MobileOffcanvas() {
                       onClick={() => toggleSubMenu(4)}
                       href="#"
                     >
-                      Pages <i className="icofont-rounded-down"></i>
+                      Bolsa de Trabajo <i className="icofont-rounded-down"></i>
                     </Link>
                     <ul
                       className={`sub-menu ${openSubMenu === 4 ? "open" : ""}`}
@@ -166,157 +177,22 @@ export default function MobileOffcanvas() {
                       <li>
                         <Link
                           onClick={handleClose}
-                          className={` ${isActive("/about") ? "active" : ""}`}
-                          href="/about"
+                          className={` ${isActive("/bolsa-de-trabajo/convocatoria") ? "active" : ""}`}
+                          href="/bolsa-de-trabajo/convocatoria"
                         >
-                          About Us
+                          Convocatoria
                         </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/appointment") ? "active" : ""
-                          }`}
-                          href="/appointment"
-                        >
-                          Appointment
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/time-table") ? "active" : ""
-                          }`}
-                          href="/time-table"
-                        >
-                          Time Table
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/testimonials") ? "active" : ""
-                          }`}
-                          href="/testimonials"
-                        >
-                          Testimonials
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${isActive("/pricing") ? "active" : ""}`}
-                          href="/pricing"
-                        >
-                          Our Pricing
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/register") ? "active" : ""
-                          }`}
-                          href="/register"
-                        >
-                          Sign Up
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${isActive("/login") ? "active" : ""}`}
-                          href="/login"
-                        >
-                          Login
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${isActive("/faq") ? "active" : ""}`}
-                          href="/faq"
-                        >
-                          Faq
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/mail-success") ? "active" : ""
-                          }`}
-                          href="/mail-success"
-                        >
-                          Mail Success
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${isActive("/404") ? "active" : ""}`}
-                          href="/404"
-                        >
-                          404 Error
-                        </Link>
-                      </li>
+                      </li>                      
                     </ul>
-                  </li>
-                  <li>
-                    <Link
-                      className="menu-arrow"
-                      onClick={() => toggleSubMenu(5)}
-                      href="#"
-                    >
-                      Blogs <i className="icofont-rounded-down"></i>
-                    </Link>
-                    <ul
-                      className={`sub-menu ${openSubMenu === 5 ? "open" : ""}`}
-                    >
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/blog-grid") ? "active" : ""
-                          }`}
-                          href="/blog-grid"
-                        >
-                          Blog Grid
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          onClick={handleClose}
-                          className={` ${
-                            isActive("/blog-single") ? "active" : ""
-                          }`}
-                          href="/blog-single"
-                        >
-                          Blog Details
-                        </Link>
-                      </li>
-                    </ul>
-                  </li>
-                  <li>
-                    <Link
-                      onClick={handleClose}
-                      className={` ${isActive("/contact") ? "active" : ""}`}
-                      href="/contact"
-                    >
-                      Contact Us
-                    </Link>
-                  </li>
+                  </li>                  
                 </ul>
               </nav>
             </div>
             {/* Mobile menu modal bottom */}
             <div className="mobile-menu-modal-bottom">
-              <Link href="/appointment" className="btn" onClick={handleClose}>
+              {/* <Link href="/appointment" className="btn" onClick={handleClose}>
                 Appointment
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
