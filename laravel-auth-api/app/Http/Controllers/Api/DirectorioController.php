@@ -106,7 +106,7 @@ class DirectorioController extends Controller
                 'correo'     => 'nullable|email|max:255',
                 'area'       => 'nullable|string|max:255',
                 'orden'      => 'nullable|integer',
-                'foto'       => 'nullable|image|max:2048',
+                'foto'       => 'nullable|image|max:5120', // acepta imágenes hasta 5 MB
                 'activo'     => 'nullable|in:0,1,true,false',
                 'autoridad'  => 'nullable|in:0,1,true,false',
             ]);
@@ -116,15 +116,17 @@ class DirectorioController extends Controller
 
             // ⬇️ Reemplazar foto si se envía una nueva
             if ($request->hasFile('foto')) {
-                // Borra la existente
-                if ($directorio->foto && Storage::disk('public')->exists($directorio->foto)) {
-                    Storage::disk('public')->delete($directorio->foto);
-                }
+                $file = $request->file('foto');
 
-                $file      = $request->file('foto');
-                $extension = $file->getClientOriginalExtension();
-                $filename  = Str::uuid() . '.' . $extension;
-                $data['foto'] = $file->storeAs('directorios', $filename, 'public');
+                if ($file && $file->isValid()) {
+                    // Borra la existente
+                    if ($directorio->foto && Storage::disk('public')->exists($directorio->foto)) {
+                        Storage::disk('public')->delete($directorio->foto);
+                    }
+
+                    $filename = Str::uuid() . '.' . $file->extension();
+                    $data['foto'] = $file->storeAs('directorios', $filename, 'public');
+                }
             }
 
             $directorio->update($data);
@@ -144,7 +146,6 @@ class DirectorioController extends Controller
             ], 500);
         }
     }
-
     /**
      * 🔒 Eliminar un miembro del directorio
      */
